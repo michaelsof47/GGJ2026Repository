@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ggj2026repository/main_menu.dart';
+import 'package:ggj2026repository/story_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -33,6 +34,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: MainMenu(),
+      routes: {'/story': (context) => StoryPage()},
     );
   }
 }
