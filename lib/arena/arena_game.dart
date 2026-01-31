@@ -6,6 +6,7 @@ import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
+import 'package:ggj2026repository/arena/arena_enemy.dart';
 import 'package:ggj2026repository/arena/arena_player.dart';
 
 import 'package:flame/sprite.dart';
@@ -88,6 +89,13 @@ class ArenaGame extends FlameGame
       player!.priority = 100; // Pastikan paling atas
       world.add(player!);
       print('DEBUG: Player added to world at (480, 320)');
+
+      world.add(ArenaEnemy(
+        position: Vector2(400, 450),
+        size: Vector2(64, 64),
+        moveRange: Vector2(400, 140),
+        speed: 70,
+      ));
 
       // -- KAMERA SETUP --
       camera.viewfinder.anchor = Anchor.center;

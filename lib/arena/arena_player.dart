@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ggj2026repository/arena/arena_game.dart';
 
@@ -14,10 +13,6 @@ class ArenaPlayer extends SpriteAnimationGroupComponent<PlayerState>
   bool isDeviceSmartphoneInput = false;
   int horizontalDirection = 0;
   int verticalDirection = 0;
-  
-  // Ukuran badan karakter untuk tabrakan (Hitbox)
-  static const double hbWidth = 26;
-  static const double hbHeight = 40;
   
   ArenaPlayer({super.position})
       : super(
