@@ -11,99 +11,104 @@ class MainMenu extends StatefulWidget {
 class _MainMenuState extends State<MainMenu> {
   @override
   Widget build(BuildContext context) {
-    // 1. KONTEN MENU (UI LAYER)
-    Widget myContent = Container(
-      width: double.infinity,
-      // Color dibuat transparent agar gambar background di bawahnya terlihat
-      color: Colors.transparent,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+    return Scaffold(
+      // Kita hilangkan pembatasan Lebar di tingkat Scaffold agar background selalu FULL
+      body: Stack(
         children: [
-          // TITLE
-          const Text(
-            "MASK",
-            style: TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
+          // LAYER 1: Background Image
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/Light Fantasy Background.jpg.png',
+              fit: BoxFit
+                  .cover, // KUNCI UTAMA: Gambar akan memenuhi layar tanpa gepeng
             ),
           ),
-          const SizedBox(height: 20),
 
-          // Kotak Gambar (Tengah)
-          Container(
-            width: 281,
-            height: 281,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.8), // Sedikit putih transparan
-              border: Border.all(color: Colors.purple, width: 2),
-            ),
-            child: const Icon(Icons.image_outlined, size: 100),
+          // LAYER 2: Overlay redup (Sedikit lebih gelap agar tombol 'Start' menonjol)
+          Positioned.fill(
+            child: Container(color: Colors.black.withOpacity(0.3)),
           ),
-          const SizedBox(height: 40),
 
-          _buildMenuButton("Start", () {
-            Navigator.pushNamed(context, "/story");
-          }),
+          // LAYER 3: Konten Menu (Tombol & Judul)
+          Center(
+            child: SingleChildScrollView(
+              child: Container(
+                // Di Desktop, kita batasi lebar konten tombolnya saja agar tidak terlalu lebar (500px)
+                // Di Android, dia akan otomatis mengikuti lebar layar
+                constraints: const BoxConstraints(maxWidth: 500),
+                padding: const EdgeInsets.symmetric(horizontal: 30),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // TITLE
+                    const Text(
+                      "MASK",
+                      style: TextStyle(
+                        fontSize: 60,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        letterSpacing: 4,
+                        shadows: [
+                          Shadow(
+                              blurRadius: 15,
+                              color: Colors.black,
+                              offset: Offset(2, 2))
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 30),
 
-          const SizedBox(height: 16),
+                    // Kotak Gambar Tengah (Opsional, bisa kamu isi logo atau biarkan kosong)
+                    Container(
+                      width: 250,
+                      height: 250,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                            color: Colors.white.withOpacity(0.5), width: 2),
+                      ),
+                      child: const Icon(Icons.auto_awesome,
+                          size: 80, color: Colors.white),
+                    ),
+                    const SizedBox(height: 50),
 
-          _buildMenuButton("Quit", () {
-            print("Quit diklik");
-          }),
+                    _buildMenuButton("Start", () {
+                      Navigator.pushNamed(context, "/story");
+                    }),
+
+                    const SizedBox(height: 20),
+
+                    _buildMenuButton("Quit", () {
+                      print("Quit Game");
+                    }),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ],
       ),
-    );
-
-    // 2. PROSES PENGGABUNGAN (STACK LAYER)
-    Widget mainStack = Stack(
-      children: [
-        // LAYER 1: Background Image
-        Positioned.fill(
-          child: Image.asset(
-            'assets/images/Light Fantasy Background.jpg.png', // <--- Pastikan file ini ada di assets
-            fit: BoxFit.cover,
-          ),
-        ),
-
-        // LAYER 2: Overlay redup (Opsional, agar teks lebih terbaca)
-        Positioned.fill(
-          child: Container(color: Colors.black.withOpacity(0.1)),
-        ),
-
-        // LAYER 3: Konten Menu Utama
-        myContent,
-      ],
-    );
-
-    return Scaffold(
-      body: kIsWeb
-          ? Center(
-              child: SizedBox(
-                width: 500,
-                child: mainStack,
-              ),
-            )
-          : SafeArea(child: mainStack),
     );
   }
 
   Widget _buildMenuButton(String label, VoidCallback onPressed) {
     return SizedBox(
-      width: 281,
-      height: 70,
+      width: double.infinity, // Mengikuti lebar constraints (500px)
+      height: 65,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.grey[700],
+          backgroundColor: Colors.white.withOpacity(0.15), // Efek Glassmorphism
           foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          side: const BorderSide(color: Colors.white, width: 1),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          elevation: 0,
         ),
         onPressed: onPressed,
         child: Text(
           label,
-          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
       ),
     );
