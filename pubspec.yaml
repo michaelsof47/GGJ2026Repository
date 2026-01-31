@@ -30,6 +30,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  lottie: ^3.1.0
+
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -37,6 +39,7 @@ dependencies:
   flame: ^1.23.0
   flame_tiled: ^2.0.3
   flutter_screenutil: ^5.9.3
+  google_fonts: ^6.2.1
 
 dev_dependencies:
   flutter_test:
@@ -54,11 +57,13 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 
-flutter: # 0 spasi
-  uses-material-design: true # 2 spasi
-  assets: # 2 spasi
-    - assets/images/ # 4 spasi
-    - assets/tiles/ # 4 spasi
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/tiles/
+    - assets/lottie/
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
