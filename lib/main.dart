@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ggj2026repository/arena/base_arena.dart';
 import 'package:ggj2026repository/main_menu.dart';
 import 'package:ggj2026repository/story_page.dart';
 import 'package:ggj2026repository/story_page2.dart';
@@ -28,8 +29,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/story': (context) => StoryPage(),
         '/story2': (context) => StoryPage2(),
-
-        // Aktifkan ini agar tombol "Begin" di story2 bisa pindah ke game
+        '/game': (context) => BaseArena(),
       },
     ); // Penutup MaterialApp
   } // Penutup Widget build

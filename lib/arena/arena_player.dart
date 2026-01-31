@@ -6,16 +6,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ggj2026repository/arena/arena_game.dart';
 
-class ArenaPlayer extends RectangleComponent
+enum PlayerState { idle, walk, dead }
+
+class ArenaPlayer extends SpriteAnimationGroupComponent<PlayerState>
     with HasGameRef<ArenaGame>, KeyboardHandler, CollisionCallbacks {
   Vector2? velocity;
-  var isDeviceSmartphoneInput;
-  var horizontalDirection;
-  var verticalDirection;
+  bool isDeviceSmartphoneInput = false;
+  int horizontalDirection = 0;
+  int verticalDirection = 0;
+  
+  // Ukuran badan karakter untuk tabrakan (Hitbox)
+  static const double hbWidth = 26;
+  static const double hbHeight = 40;
+  
   ArenaPlayer({super.position})
       : super(
-          size: Vector2.all(44),
-          paint: Paint()..color = Colors.red,
+          size: Vector2(64, 64), // UBAH DI SINI untuk merubah besar gambar karakter
           anchor: Anchor.center,
         );
 
@@ -23,10 +29,30 @@ class ArenaPlayer extends RectangleComponent
   Future<void> onLoad() async {
     await super.onLoad();
     velocity = Vector2.zero();
-    add(RectangleHitbox());
     isDeviceSmartphoneInput = false;
     // Gunakan clone() agar benar-benar menyalin nilai posisi awal
     previousPosition = position.clone();
+
+    final idleSheet = await Future.wait(
+      List.generate(48, (i) => Sprite.load("character_idle/00${i.toString().padLeft(2,'0')}.png"))
+    );
+
+    final walkSheet = await Future.wait(
+      List.generate(35, (i) => Sprite.load("character_walk/00${i.toString().padLeft(2,'0')}.png"))
+    );
+
+    animations = {
+      PlayerState.idle: SpriteAnimation.spriteList(idleSheet, stepTime: 0.1),
+      PlayerState.walk: SpriteAnimation.spriteList(walkSheet, stepTime: 0.1)
+    };
+
+    current = PlayerState.idle;
+    
+    // Hitbox disesuaikan untuk ukuran 64x64
+    add(RectangleHitbox(
+      size: Vector2(30, 45), 
+      position: Vector2(size.x / 2 - 15, size.y / 2 - 15),
+    ));
   }
 
   Vector2 previousPosition = Vector2.zero();
@@ -34,78 +60,91 @@ class ArenaPlayer extends RectangleComponent
 
   void moveByTouchDelta(double dx, double dy) {
     isDeviceSmartphoneInput = true;
-    touchDelta.setValues(dx, dy);
+    const double sensitivity = 1.5; // Naikkan angka ini jika ingin lebih lincah
+    touchDelta.add(Vector2(dx * sensitivity, dy * sensitivity));
   }
+
+  // Helper untuk mendapatkan koordinat kotak badan (Hitbox) secara nyata
+  Rect get _hitboxRect => Rect.fromCenter(
+    center: position.toOffset(),
+    width: 30, // Harus sama dengan ukuran hitbox di onLoad
+    height: 45,
+  );
 
   @override
   void update(double dt) {
-    // 1. Simpan posisi aman SEBELUM bergerak
     previousPosition.setFrom(position);
-
     super.update(dt);
 
+    Vector2 delta = Vector2.zero();
     if (isDeviceSmartphoneInput) {
       if (!touchDelta.isZero()) {
-        // Gunakan delta langsung
-        position.add(touchDelta * 1.1);
-        touchDelta.setZero();
+        delta.setFrom(touchDelta);
       }
     } else {
       if (velocity != null && !velocity!.isZero()) {
-        position += velocity! * dt;
+        delta = velocity! * dt;
       }
     }
 
-    // 1. Hitung potensi posisi baru
-    final displacement = velocity! * dt;
-    
-    // 2. Cek collision secara horizontal
-    position.x += displacement.x;
-    _checkHorizontalCollision();
-    
-    // 3. Cek collision secara vertikal
-    position.y += displacement.y;
-    _checkVerticalCollision();
-  }
+    if (!delta.isZero()) {
+      current = PlayerState.walk;
+      
+      // Logika Balik Arah (Flip)
+      // Jika bergerak ke kiri (delta.x < 0) dan karakter masih hadap kanan (scale.x > 0)
+      if (delta.x < 0 && scale.x > 0) {
+        scale.x = -1;
+      } 
+      // Jika bergerak ke kanan (delta.x > 0) dan karakter masih hadap kiri (scale.x < 0)
+      else if (delta.x > 0 && scale.x < -0) {
+        scale.x = 1;
+      }
 
-  @override
-  void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
-    super.onCollision(intersectionPoints, other);
-    if (other is CollisionBlock) {
-      position -= velocity!;
+      // 1. Gerak Horizontal & Cek Tabrakan
+      if (delta.x != 0) {
+        position.x += delta.x;
+        _checkHorizontalCollision(delta.x);
+      }
+      
+      // 2. Gerak Vertical & Cek Tabrakan
+      if (delta.y != 0) {
+        position.y += delta.y;
+        _checkVerticalCollision(delta.y);
+      }
+      
+      if (isDeviceSmartphoneInput) touchDelta.setZero();
+    } else {
+      current = PlayerState.idle;
     }
   }
 
-  void _checkHorizontalCollision() {
+  void _checkHorizontalCollision(double dx) {
+    // Gunakan _hitboxRect agar deteksinya presisi ke badan saja
     for (final block in gameRef.world.children.query<CollisionBlock>()) {
-      if (this.collidingWith(block)) {
-        if (velocity!.x > 0) {
-          // Bergerak ke kanan
-          velocity?.x = 0;
-          position.x = block.x - width;
-        } else if (velocity!.x < 0) {
-          // Bergerak ke kiri
-          velocity?.x = 0;
-          position.x = block.x + block.width;
+      if (_hitboxRect.overlaps(block.toRect())) {
+        if (dx > 0) {
+          // Menabrak dinding kanan -> berhenti tepat di tepi kiri dinding
+          position.x = block.x - 15; // 15 adalah setengah lebar hitbox (30/2)
+        } else if (dx < 0) {
+          // Menabrak dinding kiri -> berhenti tepat di tepi kanan dinding
+          position.x = block.x + block.width + 15;
         }
-        break;
+        if (!isDeviceSmartphoneInput) velocity?.x = 0;
       }
     }
   }
 
-  void _checkVerticalCollision() {
+  void _checkVerticalCollision(double dy) {
     for (final block in gameRef.world.children.query<CollisionBlock>()) {
-      if (this.collidingWith(block)) {
-        if (velocity!.y > 0) {
-          // Bergerak ke bawah
-          velocity?.y = 0;
-          position.y = block.y - height;
-        } else if (velocity!.y < 0) {
-          // Bergerak ke atas
-          velocity?.y = 0;
-          position.y = block.y + block.height;
+      if (_hitboxRect.overlaps(block.toRect())) {
+        if (dy > 0) {
+          // Menabrak bawah -> berhenti di tepi atas dinding
+          position.y = block.y - 22.5; // 22.5 adalah setengah tinggi hitbox (45/2)
+        } else if (dy < 0) {
+          // Menabrak atas -> berhenti di tepi bawah dinding
+          position.y = block.y + block.height + 22.5;
         }
-        break;
+        if (!isDeviceSmartphoneInput) velocity?.y = 0;
       }
     }
   }

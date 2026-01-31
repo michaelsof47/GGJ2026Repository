@@ -82,6 +82,16 @@ class StoryPage2 extends StatelessWidget {
                       children: [
                         // Kembali ke Story 1
                         _buildNavButton("Back", () => Navigator.pop(context)),
+              // Begin: Pindah ke Level Selection atau Game
+              _buildNavButton("Begin", () {
+                print("Game Dimulai");
+                Navigator.pushNamed(context, '/game');
+              }),
+            ],
+          ),
+        ),
+      ],
+    );
 
                         // Mulai Game (Begin)
                         _buildNavButton("Begin", () {
