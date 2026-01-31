@@ -1,26 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
-class StoryPage extends StatelessWidget {
-  StoryPage({super.key});
+class StoryPage2 extends StatelessWidget {
+  StoryPage2({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // 1. Logika Warna - Ganti di sini untuk bereksperimen!
-    Color warnaTulisan = Colors.yellowAccent; // Contoh: ganti ke kuning
-    Color warnaGambar = Colors.redAccent; // Contoh: ganti ke merah
-    Color warnaKotak = Colors.grey[800]!; // Contoh: kotak lebih gelap
+    // 1. Logika Warna (Sesuaikan dengan StoryPage 1 agar serasi)
+    Color warnaTulisan = Colors.white;
+    Color warnaGambar = Colors.white70;
+    Color warnaKotak = Colors.grey[600]!;
 
     Widget storyContent = Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         // KOTAK CERITA
         Container(
-          width: kIsWeb
-              ? 1000
-              : double.infinity, // Lebar dikurangi agar aman di scaling 125%
+          width: kIsWeb ? 1000 : double.infinity,
           constraints: BoxConstraints(
-            // Membatasi tinggi agar tombol Next/Back tidak terdorong keluar layar
             maxHeight: MediaQuery.of(context).size.height * 0.5,
             minHeight: 200,
           ),
@@ -32,24 +29,22 @@ class StoryPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // AGAR WARNA GAMBAR BISA DIGANTI:
-              // Gunakan Icon dengan property 'color'
               Flexible(
                 child: Icon(
                   Icons.image,
                   size: 80,
-                  color: warnaGambar, // <--- Warna Gambar
+                  color: warnaGambar,
                 ),
               ),
               SizedBox(height: 20),
-              // AGAR WARNA TULISAN BISA DIGANTI:
+              // TEKS CERITA KEDUA
               Text(
-                "Pada suatu hari hiduplah seorang\nanak kecil\nyang terkunci di istana",
+                "Anak kecil itu ingin keluar dari\nkastel yang mengurungnya dan\nharus mengumpulkan topeng",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: warnaTulisan, // <--- Warna Tulisan
+                  color: warnaTulisan,
                 ),
               ),
             ],
@@ -64,12 +59,13 @@ class StoryPage extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Tombol Back: Kembali ke Main Menu
+              // Back: Kembali ke StoryPage 1
               _buildNavButton("Back", () => Navigator.pop(context)),
 
-              // Tombol Next: Pindah ke StoryPage 2 menggunakan route '/story2'
-              _buildNavButton("Next", () {
-                Navigator.pushNamed(context, "/story2");
+              // Begin: Pindah ke Level Selection atau Game
+              _buildNavButton("Begin", () {
+                print("Game Dimulai");
+                // Nanti tambahkan Navigator.push ke halaman LevelSelect di sini
               }),
             ],
           ),
@@ -80,7 +76,6 @@ class StoryPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        // SCROLL VIEW: Kunci agar 125% scaling tidak memunculkan garis kuning
         child: Center(
           child: SingleChildScrollView(
             padding: EdgeInsets.all(20),

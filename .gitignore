@@ -46,4 +46,14 @@ app.*.map.json
 
 /android/
 
+#Folder platform yang ingin di-ignore
+ios/
+linux/
+macos/
+windows/
+web/
+test/
+
+
+
 
