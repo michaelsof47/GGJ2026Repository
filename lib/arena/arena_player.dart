@@ -12,6 +12,7 @@ class ArenaPlayer extends RectangleComponent
   var isDeviceSmartphoneInput;
   var horizontalDirection;
   var verticalDirection;
+  
   ArenaPlayer({super.position})
       : super(
           size: Vector2.all(44),
@@ -39,73 +40,63 @@ class ArenaPlayer extends RectangleComponent
 
   @override
   void update(double dt) {
-    // 1. Simpan posisi aman SEBELUM bergerak
     previousPosition.setFrom(position);
-
     super.update(dt);
 
+    Vector2 delta = Vector2.zero();
     if (isDeviceSmartphoneInput) {
       if (!touchDelta.isZero()) {
-        // Gunakan delta langsung
-        position.add(touchDelta * 1.1);
-        touchDelta.setZero();
+        delta.setFrom(touchDelta);
+        // touchDelta.setZero(); // Keep delta for this frame
       }
     } else {
       if (velocity != null && !velocity!.isZero()) {
-        position += velocity! * dt;
+        delta = velocity! * dt;
       }
     }
 
-    // 1. Hitung potensi posisi baru
-    final displacement = velocity! * dt;
-    
-    // 2. Cek collision secara horizontal
-    position.x += displacement.x;
-    _checkHorizontalCollision();
-    
-    // 3. Cek collision secara vertikal
-    position.y += displacement.y;
-    _checkVerticalCollision();
-  }
-
-  @override
-  void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
-    super.onCollision(intersectionPoints, other);
-    if (other is CollisionBlock) {
-      position -= velocity!;
+    if (!delta.isZero()) {
+      // 1. Move Horizontal
+      position.x += delta.x;
+      _checkHorizontalCollision(delta.x);
+      
+      // 2. Move Vertical
+      position.y += delta.y;
+      _checkVerticalCollision(delta.y);
+      
+      if (isDeviceSmartphoneInput) touchDelta.setZero();
     }
   }
 
-  void _checkHorizontalCollision() {
+  void _checkHorizontalCollision(double dx) {
+    // Gunakan Rect untuk deteksi instan tanpa menunggu update hitbox Flame
+    final playerRect = toRect();
     for (final block in gameRef.world.children.query<CollisionBlock>()) {
-      if (this.collidingWith(block)) {
-        if (velocity!.x > 0) {
-          // Bergerak ke kanan
-          velocity?.x = 0;
-          position.x = block.x - width;
-        } else if (velocity!.x < 0) {
-          // Bergerak ke kiri
-          velocity?.x = 0;
-          position.x = block.x + block.width;
+      if (playerRect.overlaps(block.toRect())) {
+        if (dx > 0) {
+          // Menabrak ke kanan -> Tempelkan ke sisi kiri blok
+          position.x = block.x - (width / 2);
+        } else if (dx < 0) {
+          // Menabrak ke kiri -> Tempelkan ke sisi kanan blok
+          position.x = block.x + block.width + (width / 2);
         }
-        break;
+        if (!isDeviceSmartphoneInput) velocity?.x = 0;
       }
     }
   }
 
-  void _checkVerticalCollision() {
+  void _checkVerticalCollision(double dy) {
+    final playerRect = toRect();
     for (final block in gameRef.world.children.query<CollisionBlock>()) {
-      if (this.collidingWith(block)) {
-        if (velocity!.y > 0) {
-          // Bergerak ke bawah
-          velocity?.y = 0;
-          position.y = block.y - height;
-        } else if (velocity!.y < 0) {
-          // Bergerak ke atas
-          velocity?.y = 0;
-          position.y = block.y + block.height;
+      if (playerRect.overlaps(block.toRect())) {
+        if (dy > 0) {
+          // Menabrak ke bawah -> Tempelkan ke sisi atas blok
+          position.y = block.y - (height / 2);
+        } else if (dy < 0) {
+          // Menabrak ke atas -> Tempelkan ke sisi bawah blok
+          position.y = block.y + block.height + (height / 2);
         }
-        break;
+        if (!isDeviceSmartphoneInput) velocity?.y = 0;
       }
     }
   }

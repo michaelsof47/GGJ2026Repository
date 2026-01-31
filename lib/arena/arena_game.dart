@@ -6,7 +6,10 @@ import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flame_tiled/flame_tiled.dart';
+import 'package:flutter/material.dart';
 import 'package:ggj2026repository/arena/arena_player.dart';
+
+import 'package:flame/sprite.dart';
 
 class ArenaGame extends FlameGame
     with HasKeyboardHandlerComponents, HasCollisionDetection {
@@ -19,57 +22,60 @@ class ArenaGame extends FlameGame
   @override
   FutureOr<void> onLoad() async {
     try {
-      print('Loading map...');
+      print('DEBUG: Starting onLoad');
+      
+      // 1. Load background image (tile_1.png)
+      final bgImage = await images.load('map.png');
+      final background = SpriteComponent(
+        sprite: Sprite(bgImage),
+        size: Vector2(960, 640),
+        priority: -1, // Pastikan paling bawah
+      );
+      world.add(background);
+      print('DEBUG: Background tile_1.png added at priority -1');
 
-      final destTileSize = Vector2.all(100);
-      mapComponent = await TiledComponent.load('COBA.tmx', destTileSize);
-      mapComponent?.priority = 0;
-      world.add(mapComponent!);
+      // 2. Tambahkan Tembok Pembatas (Manual)
+      // Tembok Atas
+      world.add(CollisionBlock(
+        position: Vector2(0, 0),
+        size: Vector2(960, 60),
+      ));
+      // Tembok Bawah
+      world.add(CollisionBlock(
+        position: Vector2(0, 580),
+        size: Vector2(960, 60),
+      ));
+      // Tembok Kiri
+      world.add(CollisionBlock(
+        position: Vector2(0, 0),
+        size: Vector2(60, 640),
+      ));
+      // Tembok Kanan
+      world.add(CollisionBlock(
+        position: Vector2(900, 0),
+        size: Vector2(60, 640),
+      ));
 
-      final mapWidth = mapComponent!.tileMap.map.width * destTileSize.x;
-      final mapHeight = mapComponent!.tileMap.map.height * destTileSize.y;
-
-      print('Map loaded: Total size: ${mapWidth}x${mapHeight}');
-
-      // Perbaikan: Gunakan try-get layer agar tidak crash jika tipe salah
-      try {
-        final collisionLayer =
-            mapComponent?.tileMap.getLayer<ObjectGroup>('Collisions');
-        if (collisionLayer != null) {
-          final originalTileSize = mapComponent!.tileMap.map
-              .tileWidth; // Mengambil ukuran tile asli dari Tiled (misal 16)
-          final scale = destTileSize.x /
-              originalTileSize; // Rasio skala (misal 100 / 16 = 6.25)
-
-          if (collisionLayer != null) {
-            for (final object in collisionLayer.objects) {
-              world.add(CollisionBlock(
-                // Posisi dan size HARUS dikalikan dengan scale
-                position: Vector2(object.x * scale, object.y * scale),
-                size: Vector2(object.width * scale, object.height * scale),
-              ));
-            }
-          }
-        }
-      } catch (e) {
-        print(
-            'INFO: Collisions layer is not an ObjectGroup (TileLayer detected). Collision skipped. $e');
-      }
-
-      // 2. Spawn Player di tengah peta
-      player = ArenaPlayer(position: Vector2(mapWidth / 2, mapHeight / 2));
-      player?.priority = 10; // Pastikan di atas map
+      // 3. Spawn Player di tengah arena
+      player = ArenaPlayer(position: Vector2(480, 320));
+      player!.priority = 100; // Pastikan paling atas
       world.add(player!);
+      print('DEBUG: Player added to world at (480, 320)');
 
       // -- KAMERA SETUP --
       camera.viewfinder.anchor = Anchor.center;
       camera.viewfinder.zoom = 1.0;
 
-      // PAKSA KAMERA KE PLAYER
-      camera.viewfinder.position = player!.position;
-      camera.follow(player!);
-    } catch (e) {
-      print('ERROR loading game: $e');
+      if (player != null) {
+         // Paksa kamera langsung lihat ke player agar tidak "tersesat" di awal
+         camera.viewfinder.position = player!.position;
+         camera.follow(player!);
+         print('DEBUG: Camera forced to player position');
+      }
+      
+    } catch (e, stackTrace) {
+      print('ERROR loading game details: $e');
+      print('Stack trace: $stackTrace');
     }
 
     return super.onLoad();
@@ -79,10 +85,41 @@ class ArenaGame extends FlameGame
   bool get debugMode => true;
 }
 
-class CollisionBlock extends PositionComponent with CollisionCallbacks {
+class CollisionBlock extends SpriteComponent with HasGameRef<ArenaGame> {
   CollisionBlock({required Vector2 position, required Vector2 size})
-      : super(position: position, size: size) {
+      : super(position: position, size: size);
+
+  @override
+  Future<void> onLoad() async {
+    await super.onLoad();
+    
+    try {
+      // 1. Load gambar (Gunakan map.png)
+      final image = await gameRef.images.load('map.png');
+
+      // 2. Buat SpriteSheet
+      final spriteSheet = SpriteSheet.fromColumnsAndRows(
+        image: image,
+        columns: 5,
+        rows: 1,
+      );
+
+      // 3. Ambil sprite
+      sprite = spriteSheet.getSprite(0, 0);
+
+    } catch (e) {
+      print('DEBUG: Fallback for CollisionBlock: $e');
+    }
+
+    // 5. Tambahkan Hitbox
     add(RectangleHitbox()..collisionType = CollisionType.passive);
-    debugMode = true;
+    
+    // Matikan debugMode jika sudah yakin pas posisinya
+    debugMode = false; 
+    
+    // Jika asset gagal, beri warna agar tetap terlihat temboknya
+    if (sprite == null) {
+       paint = Paint()..color = const Color(0x88808080);
+    }
   }
 }
