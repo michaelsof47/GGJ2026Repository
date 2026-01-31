@@ -21,45 +21,45 @@ class ArenaGame extends FlameGame
     try {
       print('Loading map...');
 
-      final destTileSize = Vector2.all(100);
-      mapComponent = await TiledComponent.load('COBA.tmx', destTileSize);
-      mapComponent?.priority = 0;
-      world.add(mapComponent!);
+      // final destTileSize = Vector2.all(100);
+      // mapComponent = await TiledComponent.load('COBA.tmx', destTileSize);
+      // mapComponent?.priority = 0;
+      // world.add(mapComponent!);
 
-      final mapWidth = mapComponent!.tileMap.map.width * destTileSize.x;
-      final mapHeight = mapComponent!.tileMap.map.height * destTileSize.y;
+      // final mapWidth = mapComponent!.tileMap.map.width * destTileSize.x;
+      // final mapHeight = mapComponent!.tileMap.map.height * destTileSize.y;
 
-      print('Map loaded: Total size: ${mapWidth}x${mapHeight}');
+      // print('Map loaded: Total size: ${mapWidth}x${mapHeight}');
 
       // Perbaikan: Gunakan try-get layer agar tidak crash jika tipe salah
-      try {
-        final collisionLayer =
-            mapComponent?.tileMap.getLayer<ObjectGroup>('Collisions');
-        if (collisionLayer != null) {
-          final originalTileSize = mapComponent!.tileMap.map
-              .tileWidth; // Mengambil ukuran tile asli dari Tiled (misal 16)
-          final scale = destTileSize.x /
-              originalTileSize; // Rasio skala (misal 100 / 16 = 6.25)
+      // try {
+      //   final collisionLayer =
+      //       mapComponent?.tileMap.getLayer<ObjectGroup>('Collisions');
+      //   if (collisionLayer != null) {
+      //     final originalTileSize = mapComponent!.tileMap.map
+      //         .tileWidth; // Mengambil ukuran tile asli dari Tiled (misal 16)
+      //     final scale = destTileSize.x /
+      //         originalTileSize; // Rasio skala (misal 100 / 16 = 6.25)
 
-          if (collisionLayer != null) {
-            for (final object in collisionLayer.objects) {
-              world.add(CollisionBlock(
-                // Posisi dan size HARUS dikalikan dengan scale
-                position: Vector2(object.x * scale, object.y * scale),
-                size: Vector2(object.width * scale, object.height * scale),
-              ));
-            }
-          }
-        }
-      } catch (e) {
-        print(
-            'INFO: Collisions layer is not an ObjectGroup (TileLayer detected). Collision skipped. $e');
-      }
+      //     if (collisionLayer != null) {
+      //       for (final object in collisionLayer.objects) {
+      //         world.add(CollisionBlock(
+      //           // Posisi dan size HARUS dikalikan dengan scale
+      //           position: Vector2(object.x * scale, object.y * scale),
+      //           size: Vector2(object.width * scale, object.height * scale),
+      //         ));
+      //       }
+      //     }
+      //   }
+      // } catch (e) {
+      //   print(
+      //       'INFO: Collisions layer is not an ObjectGroup (TileLayer detected). Collision skipped. $e');
+      // }
 
-      // 2. Spawn Player di tengah peta
-      player = ArenaPlayer(position: Vector2(mapWidth / 2, mapHeight / 2));
-      player?.priority = 10; // Pastikan di atas map
-      world.add(player!);
+      // // 2. Spawn Player di tengah peta
+      // player = ArenaPlayer(position: Vector2(mapWidth / 2, mapHeight / 2));
+      // player?.priority = 10; // Pastikan di atas map
+      // world.add(player!);
 
       // -- KAMERA SETUP --
       camera.viewfinder.anchor = Anchor.center;
