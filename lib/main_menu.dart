@@ -18,7 +18,7 @@ class _MainMenuState extends State<MainMenu> {
           // LAYER 1: Background Image
           Positioned.fill(
             child: Image.asset(
-              'assets/images/Light Fantasy Background.jpg.png',
+              'assets/images/Light Fantasy Background.png',
               fit: BoxFit
                   .cover, // KUNCI UTAMA: Gambar akan memenuhi layar tanpa gepeng
             ),

@@ -65,7 +65,7 @@ class StoryPage2 extends StatelessWidget {
               // Begin: Pindah ke Level Selection atau Game
               _buildNavButton("Begin", () {
                 print("Game Dimulai");
-                // Nanti tambahkan Navigator.push ke halaman LevelSelect di sini
+                Navigator.pushNamed(context, '/game');
               }),
             ],
           ),

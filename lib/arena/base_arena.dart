@@ -21,12 +21,10 @@ class _BaseArenaState extends State<BaseArena> {
         ? Scaffold(body: gameWidget)
         : SafeArea(
             child: Scaffold(
-            body: GestureDetector(
-              // Delta Logic: Cukup panUpdate saja.
-              // Kalau jari diam, tidak ada event update -> player diam.
-              onPanUpdate: (details) {
-                // Kirim perubahan posisi (Delta) langsung ke player
-                _game.player?.moveByTouchDelta(details.delta.dx, details.delta.dy);
+            body: Listener(
+              onPointerMove: (event) {
+                // Listener lebih responsif dari GestureDetector karena tidak ada "slop" (jeda deteksi)
+                _game.player?.moveByTouchDelta(event.delta.dx, event.delta.dy);
               },
               child: gameWidget,
             ),

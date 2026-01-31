@@ -6,17 +6,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ggj2026repository/arena/arena_game.dart';
 
-class ArenaPlayer extends RectangleComponent
+enum PlayerState { idle, walk, dead }
+
+class ArenaPlayer extends SpriteAnimationGroupComponent<PlayerState>
     with HasGameRef<ArenaGame>, KeyboardHandler, CollisionCallbacks {
   Vector2? velocity;
-  var isDeviceSmartphoneInput;
-  var horizontalDirection;
-  var verticalDirection;
+  bool isDeviceSmartphoneInput = false;
+  int horizontalDirection = 0;
+  int verticalDirection = 0;
+  
+  // Ukuran badan karakter untuk tabrakan (Hitbox)
+  static const double hbWidth = 26;
+  static const double hbHeight = 40;
   
   ArenaPlayer({super.position})
       : super(
-          size: Vector2.all(44),
-          paint: Paint()..color = Colors.red,
+          size: Vector2(64, 64), // UBAH DI SINI untuk merubah besar gambar karakter
           anchor: Anchor.center,
         );
 
@@ -24,10 +29,30 @@ class ArenaPlayer extends RectangleComponent
   Future<void> onLoad() async {
     await super.onLoad();
     velocity = Vector2.zero();
-    add(RectangleHitbox());
     isDeviceSmartphoneInput = false;
     // Gunakan clone() agar benar-benar menyalin nilai posisi awal
     previousPosition = position.clone();
+
+    final idleSheet = await Future.wait(
+      List.generate(48, (i) => Sprite.load("character_idle/00${i.toString().padLeft(2,'0')}.png"))
+    );
+
+    final walkSheet = await Future.wait(
+      List.generate(35, (i) => Sprite.load("character_walk/00${i.toString().padLeft(2,'0')}.png"))
+    );
+
+    animations = {
+      PlayerState.idle: SpriteAnimation.spriteList(idleSheet, stepTime: 0.1),
+      PlayerState.walk: SpriteAnimation.spriteList(walkSheet, stepTime: 0.1)
+    };
+
+    current = PlayerState.idle;
+    
+    // Hitbox disesuaikan untuk ukuran 64x64
+    add(RectangleHitbox(
+      size: Vector2(30, 45), 
+      position: Vector2(size.x / 2 - 15, size.y / 2 - 15),
+    ));
   }
 
   Vector2 previousPosition = Vector2.zero();
@@ -35,8 +60,16 @@ class ArenaPlayer extends RectangleComponent
 
   void moveByTouchDelta(double dx, double dy) {
     isDeviceSmartphoneInput = true;
-    touchDelta.setValues(dx, dy);
+    const double sensitivity = 1.5; // Naikkan angka ini jika ingin lebih lincah
+    touchDelta.add(Vector2(dx * sensitivity, dy * sensitivity));
   }
+
+  // Helper untuk mendapatkan koordinat kotak badan (Hitbox) secara nyata
+  Rect get _hitboxRect => Rect.fromCenter(
+    center: position.toOffset(),
+    width: 30, // Harus sama dengan ukuran hitbox di onLoad
+    height: 45,
+  );
 
   @override
   void update(double dt) {
@@ -47,7 +80,6 @@ class ArenaPlayer extends RectangleComponent
     if (isDeviceSmartphoneInput) {
       if (!touchDelta.isZero()) {
         delta.setFrom(touchDelta);
-        // touchDelta.setZero(); // Keep delta for this frame
       }
     } else {
       if (velocity != null && !velocity!.isZero()) {
@@ -56,29 +88,46 @@ class ArenaPlayer extends RectangleComponent
     }
 
     if (!delta.isZero()) {
-      // 1. Move Horizontal
-      position.x += delta.x;
-      _checkHorizontalCollision(delta.x);
+      current = PlayerState.walk;
       
-      // 2. Move Vertical
-      position.y += delta.y;
-      _checkVerticalCollision(delta.y);
+      // Logika Balik Arah (Flip)
+      // Jika bergerak ke kiri (delta.x < 0) dan karakter masih hadap kanan (scale.x > 0)
+      if (delta.x < 0 && scale.x > 0) {
+        scale.x = -1;
+      } 
+      // Jika bergerak ke kanan (delta.x > 0) dan karakter masih hadap kiri (scale.x < 0)
+      else if (delta.x > 0 && scale.x < -0) {
+        scale.x = 1;
+      }
+
+      // 1. Gerak Horizontal & Cek Tabrakan
+      if (delta.x != 0) {
+        position.x += delta.x;
+        _checkHorizontalCollision(delta.x);
+      }
+      
+      // 2. Gerak Vertical & Cek Tabrakan
+      if (delta.y != 0) {
+        position.y += delta.y;
+        _checkVerticalCollision(delta.y);
+      }
       
       if (isDeviceSmartphoneInput) touchDelta.setZero();
+    } else {
+      current = PlayerState.idle;
     }
   }
 
   void _checkHorizontalCollision(double dx) {
-    // Gunakan Rect untuk deteksi instan tanpa menunggu update hitbox Flame
-    final playerRect = toRect();
+    // Gunakan _hitboxRect agar deteksinya presisi ke badan saja
     for (final block in gameRef.world.children.query<CollisionBlock>()) {
-      if (playerRect.overlaps(block.toRect())) {
+      if (_hitboxRect.overlaps(block.toRect())) {
         if (dx > 0) {
-          // Menabrak ke kanan -> Tempelkan ke sisi kiri blok
-          position.x = block.x - (width / 2);
+          // Menabrak dinding kanan -> berhenti tepat di tepi kiri dinding
+          position.x = block.x - 15; // 15 adalah setengah lebar hitbox (30/2)
         } else if (dx < 0) {
-          // Menabrak ke kiri -> Tempelkan ke sisi kanan blok
-          position.x = block.x + block.width + (width / 2);
+          // Menabrak dinding kiri -> berhenti tepat di tepi kanan dinding
+          position.x = block.x + block.width + 15;
         }
         if (!isDeviceSmartphoneInput) velocity?.x = 0;
       }
@@ -86,15 +135,14 @@ class ArenaPlayer extends RectangleComponent
   }
 
   void _checkVerticalCollision(double dy) {
-    final playerRect = toRect();
     for (final block in gameRef.world.children.query<CollisionBlock>()) {
-      if (playerRect.overlaps(block.toRect())) {
+      if (_hitboxRect.overlaps(block.toRect())) {
         if (dy > 0) {
-          // Menabrak ke bawah -> Tempelkan ke sisi atas blok
-          position.y = block.y - (height / 2);
+          // Menabrak bawah -> berhenti di tepi atas dinding
+          position.y = block.y - 22.5; // 22.5 adalah setengah tinggi hitbox (45/2)
         } else if (dy < 0) {
-          // Menabrak ke atas -> Tempelkan ke sisi bawah blok
-          position.y = block.y + block.height + (height / 2);
+          // Menabrak atas -> berhenti di tepi bawah dinding
+          position.y = block.y + block.height + 22.5;
         }
         if (!isDeviceSmartphoneInput) velocity?.y = 0;
       }
