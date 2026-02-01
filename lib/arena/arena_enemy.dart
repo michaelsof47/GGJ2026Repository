@@ -109,13 +109,15 @@ class ArenaEnemy extends SpriteAnimationGroupComponent<EnemyState>
     }
   }
 
+  // DI DALAM FILE arena_enemy.dart
   @override
   void onCollisionStart(
       Set<Vector2> intersectionPoints, PositionComponent other) {
-    super.onCollisionStart(intersectionPoints, other);
     if (other is ArenaPlayer) {
-      // Kembalikan player ke titik awal jika kena musuh
-      other.position = Vector2(100, 600);
+      // PASTIKAN HANYA MEMANGGIL die()
+      other.die();
+      // JANGAN ADA other.respawn() DI SINI!
     }
+    super.onCollisionStart(intersectionPoints, other);
   }
 }

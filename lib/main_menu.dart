@@ -93,7 +93,7 @@ class _MainMenuState extends State<MainMenu> {
             // BACKGROUND
             Positioned.fill(
               child: Image.asset(
-                'assets/images/Light Fantasy Background.png',
+                'assets/images/BG.png',
                 fit: BoxFit.cover,
               ),
             ),
