@@ -44,10 +44,9 @@ class StoryPage2 extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                       image: const DecorationImage(
                         image: AssetImage('assets/images/kotakcerita.png'),
-                        fit: BoxFit.fill, // Menghilangkan celah di tepi
+                        fit: BoxFit.fill,
                       ),
                     ),
-                    // Padding internal agar teks tidak menyentuh pinggir
                     padding: const EdgeInsets.symmetric(
                         horizontal: 40, vertical: 20),
                     child: Center(
@@ -55,7 +54,6 @@ class StoryPage2 extends StatelessWidget {
                         "Anak kecil itu ingin keluar dari\nkastel yang mengurungnya dan\nharus mengumpulkan topeng",
                         textAlign: TextAlign.center,
                         style: GoogleFonts.medievalSharp(
-                          // Font Kerajaan
                           fontSize: kIsWeb ? 32 : 24,
                           fontWeight: FontWeight.bold,
                           color: warnaTulisan,
@@ -82,11 +80,12 @@ class StoryPage2 extends StatelessWidget {
                       children: [
                         // Kembali ke Story 1
                         _buildNavButton("Back", () => Navigator.pop(context)),
-              // Begin: Pindah ke Level Selection atau Game
-              _buildNavButton("Begin", () {
-                print("Game Dimulai");
-                Navigator.pushNamed(context, '/game');
-              }),
+
+                        // Mulai Game (Begin)
+                        _buildNavButton("Begin", () {
+                          print("Game Dimulai");
+                          Navigator.pushNamed(context, "/game");
+                        }),
                       ],
                     ),
                   ),

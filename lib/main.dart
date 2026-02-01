@@ -3,6 +3,7 @@ import 'package:ggj2026repository/arena/base_arena.dart';
 import 'package:ggj2026repository/main_menu.dart';
 import 'package:ggj2026repository/story_page.dart';
 import 'package:ggj2026repository/story_page2.dart';
+import 'package:lottie/lottie.dart';
 
 void main() {
   runApp(const MyApp());
@@ -30,6 +31,8 @@ class MyApp extends StatelessWidget {
         '/story': (context) => StoryPage(),
         '/story2': (context) => StoryPage2(),
         '/game': (context) => BaseArena(),
+
+        // Aktifkan ini agar tombol "Begin" di story2 bisa pindah ke game
       },
     ); // Penutup MaterialApp
   } // Penutup Widget build
