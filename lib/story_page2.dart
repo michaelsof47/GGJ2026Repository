@@ -51,7 +51,7 @@ class StoryPage2 extends StatelessWidget {
                         horizontal: 40, vertical: 20),
                     child: Center(
                       child: Text(
-                        "Anak kecil itu ingin keluar dari\nkastel yang mengurungnya dan\nharus mengumpulkan topeng",
+                        "Anak kecil itu ingin keluar dari\nkastel yang mengurungnya dan hanya memliki topeng di tangannya",
                         textAlign: TextAlign.center,
                         style: GoogleFonts.medievalSharp(
                           fontSize: kIsWeb ? 32 : 24,

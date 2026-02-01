@@ -115,7 +115,7 @@ class ArenaGame extends FlameGame
   }
 
   @override
-  bool get debugMode => true;
+  bool get debugMode => false;
 }
 
 class WinArea extends SpriteComponent

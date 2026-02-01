@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/services.dart'; // Untuk SystemNavigator.pop()
+import 'package:flutter/foundation.dart'; // Untuk kIsWeb
+import 'web_helper.dart' if (dart.library.html) 'web_helper_web.dart'; // Conditional Import
 
 // DEKLARASI GLOBAL: Agar musik tidak mati saat pindah ke Story
 final AudioPlayer globalBgmPlayer = AudioPlayer();
@@ -83,6 +86,15 @@ class _MainMenuState extends State<MainMenu> {
     }
   }
 
+  // --- LOGIC QUIT ---
+  void _quitApp() {
+    if (kIsWeb) {
+      webRedirect();
+    } else {
+      SystemNavigator.pop();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -93,7 +105,7 @@ class _MainMenuState extends State<MainMenu> {
             // BACKGROUND
             Positioned.fill(
               child: Image.asset(
-                'assets/images/Light Fantasy Background.png',
+                'assets/images/BG.png',
                 fit: BoxFit.cover,
               ),
             ),
@@ -168,7 +180,7 @@ class _MainMenuState extends State<MainMenu> {
                           Navigator.pushNamed(context, "/story");
                         }),
                         const SizedBox(height: 25),
-                        _buildRoyalButton("Quit", () => print("Quit")),
+                        _buildRoyalButton("Quit", _quitApp),
                       ],
                     ),
                   ),

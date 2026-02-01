@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:ggj2026repository/arena/arena_game.dart';
-import 'package:ggj2026repository/arena/arena_player.dart';
+
 
 enum EnemyState { walk_down, walk_top }
 
@@ -109,13 +109,5 @@ class ArenaEnemy extends SpriteAnimationGroupComponent<EnemyState>
     }
   }
 
-  @override
-  void onCollisionStart(
-      Set<Vector2> intersectionPoints, PositionComponent other) {
-    super.onCollisionStart(intersectionPoints, other);
-    if (other is ArenaPlayer) {
-      // Kembalikan player ke titik awal jika kena musuh
-      other.position = Vector2(100, 600);
-    }
-  }
+
 }

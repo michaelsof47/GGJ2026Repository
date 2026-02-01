@@ -11,6 +11,7 @@ class BaseArena extends StatefulWidget {
 }
 
 class _BaseArenaState extends State<BaseArena> {
+  // Kita gunakan _game sebagai referensi utama
   final ArenaGame _game = ArenaGame();
   final AudioPlayer _arenaBgmPlayer = AudioPlayer();
 
@@ -39,12 +40,11 @@ class _BaseArenaState extends State<BaseArena> {
 
   @override
   Widget build(BuildContext context) {
-    // --- MODIFIKASI GAMEWIDGET DI SINI ---
     Widget gameWidget = GameWidget(
       game: _game,
-      // Daftarkan Overlay (Pop-up) di sini
       overlayBuilderMap: {
-        'WinMenu': (BuildContext context, ArenaGame game) {
+        // Menggunakan FlameGame sebagai tipe dasar di parameter
+        'WinMenu': (BuildContext context, FlameGame game) {
           return Center(
             child: Container(
               padding: const EdgeInsets.all(24),
@@ -56,8 +56,6 @@ class _BaseArenaState extends State<BaseArena> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Gambar simbol kemenanganmu
-                  // Pastikan file ini ada di assets/images/WinSymbol.png
                   Image.asset('assets/images/win.png', width: 150),
                   const SizedBox(height: 16),
                   const Text(
@@ -66,16 +64,18 @@ class _BaseArenaState extends State<BaseArena> {
                       color: Colors.white,
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
-                      decoration: TextDecoration
-                          .none, // Agar tidak ada garis bawah kuning
+                      decoration: TextDecoration.none,
                     ),
                   ),
                   const SizedBox(height: 24),
                   ElevatedButton(
                     style:
                         ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                    onPressed: () => game
-                        .restartGame(), // Memanggil fungsi restart di ArenaGame
+                    onPressed: () {
+                      // MENGHILANGKAN GARIS MERAH:
+                      // Langsung panggil instance _game yang sudah pasti tipenya ArenaGame
+                      _game.restartGame();
+                    },
                     child:
                         const Text('RESTART', style: TextStyle(fontSize: 20)),
                   ),

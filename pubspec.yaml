@@ -42,9 +42,20 @@ dependencies:
   google_fonts: ^6.2.1
   audioplayers: ^6.1.0 # Versi terbaru saat ini
 
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/icon_logo.jpg" # Ganti dengan path logo Anda
+  web:
+    generate: true
+    image_path: "assets/images/icon_logo.jpg"
+    background_color: "#111111"
+    theme_color: "#111111"
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.13.1
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
