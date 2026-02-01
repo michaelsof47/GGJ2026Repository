@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart'; // Jangan lupa install package ini
+import 'package:google_fonts/google_fonts.dart';
 
 class MainMenu extends StatefulWidget {
   const MainMenu({super.key});
@@ -76,14 +76,6 @@ class _MainMenuState extends State<MainMenu> {
           // BACKGROUND
           Positioned.fill(
             child: Image.asset('assets/images/BG.png', fit: BoxFit.cover),
-            child: Image.asset(
-              'assets/images/Light Fantasy Background.png',
-              fit: BoxFit
-                  .cover, // KUNCI UTAMA: Gambar akan memenuhi layar tanpa gepeng
-            ),
-          ),
-          Positioned.fill(
-            child: Container(color: Colors.black.withOpacity(0.4)),
           ),
 
           Center(

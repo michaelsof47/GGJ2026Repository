@@ -85,16 +85,23 @@ class ArenaGame extends FlameGame
       ));
 
       // 3. Spawn Player di lokasi yang aman
-      player = ArenaPlayer(position: Vector2(100, 400));
+      player = ArenaPlayer(position: Vector2(100, 600));
       player!.priority = 100; // Pastikan paling atas
       world.add(player!);
-      print('DEBUG: Player added to world at (480, 320)');
 
+      //Enemy 1
       world.add(ArenaEnemy(
-        position: Vector2(400, 450),
-        size: Vector2(64, 64),
-        moveRange: Vector2(400, 140),
-        speed: 70,
+        position: Vector2(300.0, 450.0),
+        size: Vector2(64.0, 64.0),
+        moveRange: Vector2(400.0, 260.0),
+        speed: 70.0,
+      ));
+      //Enemy 2
+      world.add(ArenaEnemy(
+        position: Vector2(630.0, 350.0),
+        size: Vector2(64.0, 64.0),
+        moveRange: Vector2(400.0, 400.0),
+        speed: 70.0,
       ));
 
       // -- KAMERA SETUP --

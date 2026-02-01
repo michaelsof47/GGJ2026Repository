@@ -87,16 +87,6 @@ class StoryPage2 extends StatelessWidget {
                 print("Game Dimulai");
                 Navigator.pushNamed(context, '/game');
               }),
-            ],
-          ),
-        ),
-      ],
-    );
-
-                        // Mulai Game (Begin)
-                        _buildNavButton("Begin", () {
-                          Navigator.pushNamed(context, "/play");
-                        }),
                       ],
                     ),
                   ),

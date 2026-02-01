@@ -5,7 +5,7 @@ import 'package:flame/components.dart';
 import 'package:flutter/services.dart';
 import 'package:ggj2026repository/arena/arena_game.dart';
 
-enum PlayerState { idle, walk, dead }
+enum PlayerState { idle, walk_down, walk_top, walk_left, walk_right, dead }
 
 class ArenaPlayer extends SpriteAnimationGroupComponent<PlayerState>
     with HasGameRef<ArenaGame>, KeyboardHandler, CollisionCallbacks {
@@ -29,16 +29,31 @@ class ArenaPlayer extends SpriteAnimationGroupComponent<PlayerState>
     previousPosition = position.clone();
 
     final idleSheet = await Future.wait(
-      List.generate(48, (i) => Sprite.load("character_idle/00${i.toString().padLeft(2,'0')}.png"))
+      List.generate(47, (i) => Sprite.load("character_idle/00${i.toString().padLeft(2,'0')}.png"))
     );
 
-    final walkSheet = await Future.wait(
+    final walkDownSheet = await Future.wait(
       List.generate(35, (i) => Sprite.load("character_walk/00${i.toString().padLeft(2,'0')}.png"))
+    );
+
+    final walkTopSheet = await Future.wait(
+      List.generate(35, (i) => Sprite.load("character_walk_top/00${i.toString().padLeft(2,'0')}.png"))
+    );
+
+    final walkLeftSheet = await Future.wait(
+      List.generate(35, (i) => Sprite.load("character_walk_left/00${i.toString().padLeft(2,'0')}.png"))
+    );
+
+    final walkRightSheet = await Future.wait(
+      List.generate(35, (i) => Sprite.load("character_walk_right/00${i.toString().padLeft(2,'0')}.png"))
     );
 
     animations = {
       PlayerState.idle: SpriteAnimation.spriteList(idleSheet, stepTime: 0.1),
-      PlayerState.walk: SpriteAnimation.spriteList(walkSheet, stepTime: 0.1)
+      PlayerState.walk_down: SpriteAnimation.spriteList(walkDownSheet, stepTime: 0.1),
+      PlayerState.walk_top: SpriteAnimation.spriteList(walkTopSheet, stepTime: 0.1),
+      PlayerState.walk_left: SpriteAnimation.spriteList(walkLeftSheet, stepTime: 0.1),
+      PlayerState.walk_right: SpriteAnimation.spriteList(walkRightSheet, stepTime: 0.1),
     };
 
     current = PlayerState.idle;
@@ -46,7 +61,7 @@ class ArenaPlayer extends SpriteAnimationGroupComponent<PlayerState>
     // Hitbox disesuaikan untuk ukuran 64x64
     add(RectangleHitbox(
       size: Vector2(30, 45), 
-      position: Vector2(size.x / 2 - 15, size.y / 2 - 15),
+      position: Vector2(size.x / 2 - 15, size.y / 2 - 22.5),
     ));
   }
 
@@ -83,17 +98,19 @@ class ArenaPlayer extends SpriteAnimationGroupComponent<PlayerState>
     }
 
     if (!delta.isZero()) {
-      current = PlayerState.walk;
-      
-      // Logika Balik Arah (Flip)
-      // Jika bergerak ke kiri (delta.x < 0) dan karakter masih hadap kanan (scale.x > 0)
-      if (delta.x < 0 && scale.x > 0) {
-        scale.x = -1;
-      } 
-      // Jika bergerak ke kanan (delta.x > 0) dan karakter masih hadap kiri (scale.x < 0)
-      else if (delta.x > 0 && scale.x < -0) {
-        scale.x = 1;
+      // 1. Tentukan status animasi berdasarkan arah dominan
+      if (delta.y < 0) {
+        current = PlayerState.walk_top;
+      } else if (delta.y > 0) {
+        current = PlayerState.walk_down;
+      } else if (delta.x < 0) {
+        current = PlayerState.walk_left;
+      } else if (delta.x > 0) {
+        current = PlayerState.walk_right;
       }
+
+      // Pastikan skala selalu normal (1) karena kita sudah menggunakan sprite terpisah untuk kiri/kanan
+      scale.x = 1;
 
       // 1. Gerak Horizontal & Cek Tabrakan
       if (delta.x != 0) {
