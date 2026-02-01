@@ -91,7 +91,7 @@ class ArenaGame extends FlameGame
 
       //Enemy 1
       world.add(ArenaEnemy(
-        position: Vector2(300.0, 450.0),
+        position: Vector2(340.0, 450.0),
         size: Vector2(64.0, 64.0),
         moveRange: Vector2(400.0, 260.0),
         speed: 70.0,
