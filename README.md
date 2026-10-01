@@ -1,16 +1,7 @@
-# ggj2026repository
+# The Masked Paladin
 
-A new Flutter project.
+The Masked Paladin merupakan game yang dibuat dari framework Flutter dengan Game Engine Flame
 
-## Getting Started
+## Note
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Saat ini masih ditunda pengembangannya dikarenakan waktu belum ada. Namun, jika ada kesempatan akan dikembangkan lagi
