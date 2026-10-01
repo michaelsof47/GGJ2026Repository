@@ -43,9 +43,11 @@ dependencies:
   audioplayers: ^6.1.0 # Versi terbaru saat ini
 
 flutter_launcher_icons:
-  android: "launcher_icon"
+  android: true
   ios: true
-  image_path: "assets/images/icon_logo.jpg" # Ganti dengan path logo Anda
+  image_path: "assets/images/icon_logo.jpg"
+  adaptive_icon_background: "#111111"
+  adaptive_icon_foreground: "assets/images/icon_logo.jpg"
   web:
     generate: true
     image_path: "assets/images/icon_logo.jpg"

@@ -110,7 +110,7 @@ class ArenaGame extends FlameGame
       position: Vector2(630.0, 350.0),
       size: Vector2(64.0, 64.0),
       moveRange: Vector2(400.0, 400.0),
-      speed: 70.0,
+      speed: 90.0,
     ));
   }
 
